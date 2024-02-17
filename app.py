@@ -1,8 +1,7 @@
+import tensorflow as tf
 from flask import Flask, request, jsonify
 from flask_uploads import UploadSet, configure_uploads, IMAGES
-from PIL import Image
-import numpy as np
-import tensorflow as tf
+from preprocess import preprocess_image
 import os
 from werkzeug.utils import secure_filename
 
@@ -46,10 +45,7 @@ def predict_image():
 
         # Process and predict using saved image
         img_path = os.path.join(app.config['UPLOADED_IMAGES_DEST'], filename)
-        image = Image.open(img_path)
-        image = image.resize((224, 224))
-        img_array = tf.keras.utils.img_to_array(image)
-        img_array = np.expand_dims(img_array, axis=0)
+        img_array = preprocess_image(img_path)
 
         # Perform prediction
         prediction = model.predict(img_array)[0]
